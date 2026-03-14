@@ -1,74 +1,150 @@
-# Carcassonne v1.23 - 2026 TTS API Compatibility Fix
+# Carcassonne v1.23 - 2026 TTS Compatibility Fix
 
-This is a compatibility patch for the Carcassonne Tabletop Simulator mod that fixes broken functionality in TTS 2024 and later.
+Updated version of the best Carcassonne mod for Tabletop Simulator, fixed to work with modern TTS (2024+).
 
-## ⚠️ Important Note
-This mod was removed from Steam Workshop due to licensing. This repository provides fixes for users who already have the mod saved locally but found it stopped working in modern TTS versions.
+## 🎮 What This Is
 
-## 🐛 Problems This Fixes
-- **Green placement markers not appearing** when picking up tiles
-- **Tile placement validation not working** (tiles not snapping to grid)
-- **Figure placement errors** after placing tiles
-- Coroutine errors: "attempt to yield from outside a coroutine"
+This is the comprehensive Carcassonne mod that was removed from Steam Workshop, now updated to work with current versions of Tabletop Simulator. It includes virtually every expansion and is heavily automated - by far the best way to play Carcassonne online.
+
+## 🐛 What Was Fixed
+
+The original mod stopped working in TTS 2024+ due to API changes:
+- Green placement markers weren't appearing when picking up tiles
+- Tile placement validation broken (tiles not snapping to grid)
+- Figure placement errors
+- Coroutine errors in the console
+
+All fixed in this version!
 
 ## 📥 Installation
 
-### For users who already have the mod:
+### Easy Method (For Beginners)
 
-**Windows:**
-1. Download `Carcassonne-v1.23.json` from this repository
-2. Replace the file at: `%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves\`
-3. **Completely quit TTS** (not just reload - use Alt+F4 or close completely)
-4. Restart TTS and load the mod
+**Step 1: Download the file**
+- Click on `Carcassonne-v1.23.json` above
+- Click the "Download" button (or right-click "Raw" → "Save Link As")
 
-**Mac:**
-1. Download `Carcassonne-v1.23.json` from this repository  
-2. Replace the file at: `~/Library/Tabletop Simulator/Mods/Workshop/`
-3. **Completely quit TTS** (Cmd+Q - not just reload)
-4. Restart TTS and load the mod
+**Step 2: Find where to put it**
 
-## 🔧 Technical Details
+**On Windows:**
+1. Open File Explorer
+2. In the address bar, type: `%USERPROFILE%\Documents\My Games\Tabletop Simulator\Saves`
+3. Press Enter
+4. Copy `Carcassonne-v1.23.json` into this folder
 
-Tabletop Simulator underwent breaking Lua API changes between 2023 and 2026. This patch addresses three critical issues:
+**On Mac:**
+1. Open Finder
+2. Press **Cmd+Shift+G** (Go to Folder)
+3. Type: `~/Library/Tabletop Simulator/Mods/Workshop/`
+4. Press Enter
+5. Copy `Carcassonne-v1.23.json` into this folder
+
+**Step 3: Restart Tabletop Simulator**
+- **IMPORTANT:** Completely quit TTS (don't just reload)
+  - Windows: Alt+F4 or File → Exit
+  - Mac: Cmd+Q
+- Start TTS again
+
+**Step 4: Load the game**
+1. In TTS, click **Games** (top menu)
+2. Click **Saved Games**
+3. Find "Carcassonne v1.23" and click it
+4. Click **Load**
+
+Done! The green markers should now appear when you pick up tiles.
+
+### Advanced Method (Using Git)
+
+If you're comfortable with git:
+
+```bash
+# Clone this repository
+git clone https://github.com/yourusername/TTSCarcassonne.git
+
+# Copy the mod file to TTS directory
+# On Mac:
+cp TTSCarcassonne/Carcassonne-v1.23.json ~/Library/Tabletop\ Simulator/Mods/Workshop/
+
+# On Windows (in PowerShell):
+# copy TTSCarcassonne\Carcassonne-v1.23.json "$env:USERPROFILE\Documents\My Games\Tabletop Simulator\Saves\"
+
+# Completely quit and restart TTS
+```
+
+## 🎲 How to Play
+
+1. Start a new game or load saved games
+2. **For AI opponents:** Most expansions work, but Abbey & Mayor doesn't support AI (original limitation)
+3. **For human multiplayer:** Everything works great in pass-and-play or online multiplayer
+4. Green markers will appear showing valid tile placements when you pick up a tile during your turn
+
+## 🔧 Technical Details (For Developers)
+
+Tabletop Simulator underwent breaking Lua API changes between 2023 and 2026. This update addresses three critical issues:
 
 ### 1. Object Type String Change
-**Old (2020-2023):** `'Card(Clone) (LuaGameObjectScript)'`  
-**New (2024+):** `'Card(Clone) (LuaObject)'`
+**Before (2020-2023):** `'Card(Clone) (LuaGameObjectScript)'`  
+**After (2024+):** `'Card(Clone) (LuaObject)'`
 
-All object type detection code was updated to use the new naming convention.
+Updated all object type detection code to use the new naming convention (10 occurrences).
 
-### 2. Coroutine API Deprecation
-**Old:** `startLuaCoroutine(self, 'showHintMarkers')`  
-**New:** `coroutine.wrap(showHintMarkers)()`
+### 2. Coroutine API Deprecation  
+**Before:** `startLuaCoroutine(self, 'showHintMarkers')`  
+**After:** `coroutine.wrap(showHintMarkers)()`
 
-The TTS built-in coroutine system was replaced with standard Lua coroutines.
+TTS deprecated the built-in coroutine system in favor of standard Lua coroutines.
 
 ### 3. Physics Engine Timing
-Increased delays for modern physics engine:
-- `TILE_PLACEMENT_DELAY`: 1s → 2.5s
-- `FIGURE_PLACEMENT_DELAY`: 2s → 3s
+Increased delays for modern physics processing:
+- `TILE_PLACEMENT_DELAY`: 1.0s → 2.5s
+- `FIGURE_PLACEMENT_DELAY`: 2.0s → 3.0s
 
-## 📝 Changes Made
+### Apply the Fix Yourself
 
-All changes were made to the `LuaScript` section in `Carcassonne-v1.23.json`:
+If you have an older version and want to apply the fix manually:
 
-1. Updated 10 occurrences of object type string matching
-2. Replaced deprecated `startLuaCoroutine` calls with `coroutine.wrap`
-3. Increased timing constants for placement validation
+```bash
+# Use the provided Perl script (requires Perl installed)
+perl fix_carcassonne_api.pl < old-version.json > fixed-version.json
+```
+
+Or manually edit the LuaScript in the JSON:
+1. Find all instances of `'Card(Clone) (LuaGameObjectScript)'` → replace with `'Card(Clone) (LuaObject)'`
+2. Find `startLuaCoroutine(self, 'showHintMarkers')` → replace with `coroutine.wrap(showHintMarkers)()`  
+3. Update timing constants as shown above
+
+## ❓ Troubleshooting
+
+**Green markers still not appearing:**
+- Make sure you **completely quit** TTS (not just reload)
+- Verify the file is in the correct location
+- Check TTS console (` key) for errors
+
+**"Mod not found" when loading:**
+- The file must be in the Saves or Workshop folder (not both)
+- File name must be exactly `Carcassonne-v1.23.json`
+
+**Tile placement still broken:**
+- Try during your actual turn (not setup phase)
+- Make sure you're picking up the tile from the draw pile, not manually placing
+
+**For other issues:**
+- Open TTS console with the ` key (backtick, above Tab)
+- Look for red error messages
+- Feel free to open an issue on this repo
 
 ## ✅ Tested With
-- Tabletop Simulator 2024-2026
-- macOS (should also work on Windows/Linux)
-- 2-player pass-and-play (Abbey & Mayor expansion works!)
+- Tabletop Simulator v13.3+ (2024-2026)
+- macOS Sonoma & Windows 11
+- 2-6 player games (pass-and-play and online multiplayer)
+- All expansions except AI with Abbey & Mayor
 
 ## 🙏 Credits
-- Original mod by DinnerBuffet: https://github.com/DinnerBuffet/TTSCarcassonne
-- Continued by mmann78: https://github.com/mmann78/TTSCarcassonne  
-- 2026 compatibility fixes by williammandeville
+- **Original mod:** DinnerBuffet - https://github.com/DinnerBuffet/TTSCarcassonne
+- **Continued development:** mmann78 - https://github.com/mmann78/TTSCarcassonne  
+- **2026 compatibility fix:** williammandeville
 
-## 📜 License
-This is a compatibility patch only. All original mod assets and code retain their original licensing.
+This mod represents hundreds of hours of work from the community. Huge thanks to everyone who contributed to making this the definitive way to play Carcassonne online.
 
-## 🎮 Known Limitations
-- AI games do not work with Abbey & Mayor expansion (original limitation, not related to this fix)
-- This is not an endorsement to pirate the game - buy official Carcassonne if you want to support the creators!
+## 📜 Note
+This is a preservation effort for a mod that was removed from Steam Workshop. We're keeping it alive for personal use among friends and family who enjoyed it during the pandemic and beyond.
